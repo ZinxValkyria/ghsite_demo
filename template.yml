@@ -1,0 +1,21 @@
+name: Deploy to {{ deploy_env }}
+
+on:
+  push:
+    branches:
+      - {{ branch }}
+
+jobs:
+  build:
+    runs-on: {{ runner }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        run: npm test

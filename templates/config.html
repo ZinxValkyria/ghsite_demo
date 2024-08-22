@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Workflow</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Configure Your Workflow</h1>
+    <form id="scriptForm">
+        <table>
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody id="configTable">
+                <!-- Dynamic rows will be inserted here -->
+            </tbody>
+        </table>
+        <button type="submit">Generate Script</button>
+    </form>
+
+    <h2>Generated Script:</h2>
+    <pre id="generatedScript"></pre>
+
+    <script>
+        // Example variables based on placeholders in the template
+        const scriptVariables = [
+            { name: 'deploy_env', placeholder: 'production' },
+            { name: 'branch', placeholder: 'main' },
+            { name: 'runner', placeholder: 'ubuntu-latest' }
+        ];
+
+        const configTable = document.getElementById('configTable');
+
+        // Dynamically create rows for each variable
+        scriptVariables.forEach(variable => {
+            const row = document.createElement('tr');
+            const nameCell = document.createElement('td');
+            const valueCell = document.createElement('td');
+
+            nameCell.textContent = variable.name;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = variable.name;
+            input.value = variable.placeholder;
+
+            valueCell.appendChild(input);
+            row.appendChild(nameCell);
+            row.appendChild(valueCell);
+            configTable.appendChild(row);
+        });
+
+        // Handle form submission
+        document.getElementById('scriptForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const configData = {};
+            formData.forEach((value, key) => {
+                configData[key] = value;
+            });
+
+            // Send configData to the backend for processing
+            fetch('/generate-script', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(configData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display the generated script
+                document.getElementById('generatedScript').textContent = data.generated_script;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
